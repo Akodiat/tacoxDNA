@@ -180,7 +180,7 @@ let Nucleotide = /** @class */ (() => {
             }
         }
         _get_lorenzo_output() {
-            return [this.cm_pos, this._a1, this._a3, this._v, this._L].map(v => v.toString()).join(" ");
+            return [this.cm_pos, this._a1, this._a3, this._v, this._L].map(v => v.toArray().join(' ')).join(' ');
         }
     }
     /*
@@ -531,7 +531,7 @@ class System {
         }
     }
     print_lorenzo_output() {
-        let conf = `t = ${this._time}\nb = ${this._box[0]} ${this._box[1]} ${this._box[2]}\nE = ${this.E_tot[0]} ${this.E_pot[0]} ${this.E_kin[0]}\n`;
+        let conf = `t = ${this._time}\nb = ${this._box.x} ${this._box.y} ${this._box.z}\nE = ${this.E_tot} ${this.E_pot} ${this.E_kin}\n`;
         let visible_strands = 0;
         let visible_nucleotides = 0;
         for (const s of this._strands) {

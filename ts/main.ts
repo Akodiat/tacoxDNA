@@ -13,7 +13,7 @@ function convertFromTo(inputs: Map<string, string>, from: string, to: string, op
     switch (to) {
         case 'oxview':
             return sys.print_oxview_output();
-        case 'oxDNA':
+        case 'oxdna':
             return sys.print_lorenzo_output();
         default:
             console.log("Unknown output format: "+from);
@@ -32,7 +32,7 @@ function saveString(text, filename) {
 }
 
 let suffixes = new Map([
-    ['oxdna', ['conf', 'top']],
+    ['oxdna', ['top', 'conf']],
     ['oxview', ['oxview']]
 ])
 

@@ -12,7 +12,7 @@ function convertFromTo(inputs, from, to, opts) {
     switch (to) {
         case 'oxview':
             return sys.print_oxview_output();
-        case 'oxDNA':
+        case 'oxdna':
             return sys.print_lorenzo_output();
         default:
             console.log("Unknown output format: " + from);
@@ -29,7 +29,7 @@ function saveString(text, filename) {
     document.body.removeChild(element);
 }
 let suffixes = new Map([
-    ['oxdna', ['conf', 'top']],
+    ['oxdna', ['top', 'conf']],
     ['oxview', ['oxview']]
 ]);
 let convertform = document.getElementById('convertForm');
