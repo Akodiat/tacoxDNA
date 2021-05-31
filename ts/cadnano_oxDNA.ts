@@ -527,7 +527,7 @@ function generate_vhelices_origami_he(vhelix_direction: THREE.Vector3, vhelix_pe
         strands = g.generate_or_sq(h.len, undefined, pos, direction, perp, true, rot, angles);
     }
 
-    return (strands[0], strands[1]), helix_angles, pos, rot, direction, perp;
+    return [strands, helix_angles, pos, rot, direction, perp];
 }
 
 

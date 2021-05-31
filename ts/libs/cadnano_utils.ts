@@ -225,7 +225,7 @@ class StrandGenerator {
         }
     }
 
-    generate_or_sq(bp, sequence=undefined, start_pos=new THREE.Vector3(0., 0., 0.), direction=new THREE.Vector3(0., 0., 1.), perp=undefined, double=true, rot=0., angle: number | number[] = Math.PI / 180 * 33.75, length_change=[], region_begin=[], region_end=[]) {
+    generate_or_sq(bp: number, sequence=undefined, start_pos=new THREE.Vector3(0., 0., 0.), direction=new THREE.Vector3(0., 0., 1.), perp=undefined, double=true, rot=0., angle: number | number[] = Math.PI / 180 * 33.75, length_change=[], region_begin=[], region_end=[]) {
         if (length_change && region_begin.length != region_end.length) {
             if ((region_end.length + 1) == region_begin.length) {
                 base.Logger.log(`the lengths of begin ${region_begin.length} and end ${region_end.length} arrays are mismatched; I will try to proceed by using the number of basepairs as the last element of the end array`, base.Logger.WARNING)
@@ -279,8 +279,9 @@ class StrandGenerator {
         let rb: THREE.Vector3 = start_pos.clone();
         let a3: THREE.Vector3 = direction.clone();
         let Rs = [];
+
         for(let i=0; i<bp; i++) {
-            ns1.add_nucleotide(new base.Nucleotide(rb.clone().sub(a1.multiplyScalar(base.CM_CENTER_DS)), a1, a3, sequence[i]))
+            ns1.add_nucleotide(new base.Nucleotide(rb.clone().sub(a1.multiplyScalar(base.CM_CENTER_DS)), a1, a3, sequence[i]));
             if (i != bp - 1) {
                 let R = new THREE.Quaternion().setFromAxisAngle(direction, angle[i]);
                 Rs.push(R);
@@ -298,7 +299,7 @@ class StrandGenerator {
             }
         }
 
-        if (double == true) {
+        if (double) {
             a1.negate().normalize();
             a3 = direction.clone().negate().normalize();
             let ns2 = new base.Strand();

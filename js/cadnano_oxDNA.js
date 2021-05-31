@@ -539,7 +539,7 @@ function generate_vhelices_origami_he(vhelix_direction, vhelix_perp, h) {
         let angles = helix_angles.slice().reverse();
         strands = g.generate_or_sq(h.len, undefined, pos, direction, perp, true, rot, angles);
     }
-    return (strands[0], strands[1]), helix_angles, pos, rot, direction, perp;
+    return [strands, helix_angles, pos, rot, direction, perp];
 }
 //  cadnano object structure
 class vstrands {

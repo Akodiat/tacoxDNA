@@ -274,7 +274,7 @@ class StrandGenerator {
                 }
             }
         }
-        if (double == true) {
+        if (double) {
             a1.negate().normalize();
             a3 = direction.clone().negate().normalize();
             let ns2 = new base.Strand();
