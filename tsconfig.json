@@ -13,6 +13,7 @@
       "./ts/libs/base.ts",
       "./ts/libs/cadnano_utils.ts",
       "./ts/cadnano_oxDNA.ts",
+      "./ts/tacoxdna.ts",
       "./ts/main.ts",
     ]
 }
