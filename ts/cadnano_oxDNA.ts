@@ -59,7 +59,7 @@ function vhelix_rotation_origami_he(direction: THREE.Vector3, perp: THREE.Vector
     return perp.clone().applyAxisAngle(direction, Math.PI * 160. / 180);
 }
 
-function insert_loop_skip(start_pos, direction, perp, rot, helix_angles, vhelix, nodes: vh_nodes, use_seq, seqs) {
+function insert_loop_skip(start_pos, direction, perp, rot, helix_angles, vhelix: vhelix, nodes: vh_nodes, use_seq, seqs) {
     //  return a double strand which is a copy of the double strand in the first argument, but with skips and loops
 
     //  strand is generated right to left i.e. opposite direction to even vhelix
@@ -236,7 +236,7 @@ function add_slice(current_system: base.System, vhelix: vhelix, begin: number, e
 }
 
 
-function add_slice_nupack(vhelix, strand_number, begin_helix, end_helix, index_lookup: cu.vhelix_vbase_to_nucleotide, strand_type) {
+function add_slice_nupack(vhelix: vhelix, strand_number: number, begin_helix: number, end_helix: number, index_lookup: cu.vhelix_vbase_to_nucleotide, strand_type: number) {
     let length_change = 0;
     let skips = 0;
     let loops = 0;
@@ -274,7 +274,7 @@ function add_slice_nupack(vhelix, strand_number, begin_helix, end_helix, index_l
             if ((strand_type + vhelix.num % 2) % 2 === 0) {
                 add_nuc = range(vhelix.loop[vhelix_base] + 1).map(x=>(nucleotide + x));
             } else {
-                add_nuc = range(vhelix.loop[vhelix_base] = 1).reverse().map(x=>(nucleotide + x));
+                add_nuc = range(vhelix.loop[vhelix_base] + 1).reverse().map(x=>(nucleotide + x));
             }
             if (strand_type === 0) {
                 index_lookup.set([vhelix.num, vhelix_base], [strand_number, [nucleotide]]);
@@ -709,7 +709,7 @@ class square {
         return `[${this.V_0},${this.b_0},${this.V_1},${this.b_1}]`;
     }
 
-    type(vhelix, myid) {
+    type(vhelix: vhelix, myid) {
         //  find type of strand (junction) on this square
         //  currently direction always equals zero...
         let direction = 0;

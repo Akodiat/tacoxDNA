@@ -256,7 +256,7 @@ function add_slice_nupack(vhelix, strand_number, begin_helix, end_helix, index_l
                 add_nuc = range(vhelix.loop[vhelix_base] + 1).map(x => (nucleotide + x));
             }
             else {
-                add_nuc = range(vhelix.loop[vhelix_base] = 1).reverse().map(x => (nucleotide + x));
+                add_nuc = range(vhelix.loop[vhelix_base] + 1).reverse().map(x => (nucleotide + x));
             }
             if (strand_type === 0) {
                 index_lookup.set([vhelix.num, vhelix_base], [strand_number, [nucleotide]]);
