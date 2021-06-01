@@ -1,4 +1,9 @@
 import {convertFromTo} from "./tacoxdna.js";
+import {Logger} from "./libs/base.js";
+
+Logger.logFunction = (msg: string) => {
+    document.getElementById("output").innerHTML += msg + "<br>";
+}
 
 function saveString(text, filename) {
     let element = document.createElement('a');
@@ -18,9 +23,13 @@ let suffixes = new Map([
 let convertform = document.getElementById('convertForm') as HTMLFormElement;
 convertform.addEventListener("submit", function(e) {
     e.preventDefault();
+
     let files = (document.getElementById("input") as HTMLInputElement).files;
     let from = (document.getElementById("fromSelect") as HTMLSelectElement).value;
     let to = (document.getElementById("toSelect") as HTMLSelectElement).value;
+    let spinner = document.getElementById("spinner");
+
+    spinner.hidden = false;
 
     let opts = {}
     if (from == "cadnano") {
@@ -29,6 +38,8 @@ convertform.addEventListener("submit", function(e) {
             sequences: false
         }
     }
+
+    Logger.log(`Converting ${[...files].map(f=>f.name).join(',')} from ${from} to ${to}.`)
     
     let readFiles = new Map();
 
@@ -38,6 +49,7 @@ convertform.addEventListener("submit", function(e) {
             readFiles.set(file, evt.target.result);
             console.log(`Finished reading ${readFiles.size} of ${files.length} files`);
             if (readFiles.size == files.length) {
+                spinner.hidden = true;
                 let converted = convertFromTo(readFiles, from, to, opts);
                 if (!Array.isArray(converted)) {
                     converted = [converted]
@@ -47,6 +59,7 @@ convertform.addEventListener("submit", function(e) {
                     let suffix = suffixes.get(to)[i];
                     saveString(out, `${basename}.${suffix}`)
                 });
+                Logger.log(`Conversion finished, downloading file${(converted.length>1) ? 's':''}`);
             }
         };
         reader.readAsText(file);

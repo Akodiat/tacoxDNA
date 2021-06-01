@@ -3,7 +3,6 @@ import * as base from "./libs/base.js";
 import * as cu from "./libs/cadnano_utils.js";
 import * as utils from "./libs/utils.js";
 
-const DEBUG = 0;
 const DIST_HEXAGONAL = 2.55  //  distance between centres of virtual helices (hexagonal array);
 const DIST_SQUARE = 2.60  //  distance between centres of virtual helices (square array);
 const BOX_FACTOR = 2  //  factor by which to expand the box (linear dimension);
@@ -767,7 +766,6 @@ function parse_cadnano(json_string) {
                 vh[key] = (val as number[][]).map(x=>new square(...x));
             } else {
                 vh[key] = val;
-                console.log(`${key} = ${val}`);
             }
         }
         vh.skiploop_bases = vh.skip.length + sum(...vh.loop) - sum(...vh.skip);
@@ -809,7 +807,6 @@ function loadCadnano(source_file, grid, sequences?, side=undefined) {
     let vh_vb2nuc_final = new cu.vhelix_vbase_to_nucleotide();
 
     let cadsys = parse_cadnano(source_file);
-    base.Logger.log("Using json file " + source_file, base.Logger.INFO);
 
     //  define sequences by vhelix
     let single_strand_system = false;

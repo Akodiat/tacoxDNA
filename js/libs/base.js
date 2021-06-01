@@ -49,10 +49,10 @@ let Logger = /** @class */ (() => {
                 return;
             }
             if (additional != undefined && Logger.debug_level == Logger.DEBUG) {
-                console.log(`${Logger.messages[level]}: ${msg} (additional info: '${additional}')`);
+                Logger.logFunction(`${Logger.messages[level]}: ${msg} (additional info: '${additional}')`);
             }
             else {
-                console.log(`${Logger.messages[level]}: ${msg}`);
+                Logger.logFunction(`${Logger.messages[level]}: ${msg}`);
             }
         }
         static die(msg) {
@@ -66,6 +66,7 @@ let Logger = /** @class */ (() => {
     Logger.CRITICAL = 3;
     Logger.debug_level = Logger.INFO;
     Logger.messages = ["DEBUG", "INFO", "WARNING", "CRITICAL"];
+    Logger.logFunction = console.log;
     return Logger;
 })();
 let Nucleotide = /** @class */ (() => {
@@ -82,7 +83,7 @@ let Nucleotide = /** @class */ (() => {
                     base = base_to_number[base];
                 }
                 catch (e) {
-                    console.log(`Invalid base (${e})`);
+                    Logger.log(`Invalid base (${e})`);
                 }
             }
             this._base = base;
@@ -277,7 +278,7 @@ let Strand = /** @class */ (() => {
         append(other) {
             let dr = this._nucleotides.slice(-1)[0].distance(other._nucleotides[0], false);
             if (Math.sqrt(dr.dot(dr)) > (0.7525 + 0.25)) {
-                console.warn("WARNING: Strand.push(): strands seem too far apart. Assuming you know what you are doing.");
+                Logger.log("WARNING: Strand.push(): strands seem too far apart. Assuming you know what you are doing.");
             }
             let ret = new Strand();
             for (const n of this._nucleotides) {
