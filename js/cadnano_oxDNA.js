@@ -1203,7 +1203,7 @@ function loadCadnano(source_file, grid, sequences, side = undefined) {
         }
     }
     //  Create inverse mapping to find pairs by their positions
-    let pos_to_id = new Map();
+    let pos_to_id = new cu.pairMap();
     for (const [bid, helix] of id_to_pos.entries()) {
         if (!pos_to_id.has(helix)) {
             pos_to_id.set(helix, []);

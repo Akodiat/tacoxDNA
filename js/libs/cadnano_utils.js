@@ -398,6 +398,9 @@ class pairMap {
     get(key) {
         return this.map.get(key.toString());
     }
+    has(key) {
+        return this.map.has(key.toString());
+    }
     get size() {
         return this.map.size;
     }
@@ -479,4 +482,4 @@ class vhelix_vbase_to_nucleotide extends pairMap {
         return (this.add_scaf_strand(add_strand, reference, continue_join) && this.add_stap_strand(add_strand, reference, continue_join));
     }
 }
-export { StrandGenerator, vhelix_vbase_to_nucleotide };
+export { StrandGenerator, vhelix_vbase_to_nucleotide, pairMap };

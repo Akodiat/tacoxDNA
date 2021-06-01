@@ -425,17 +425,21 @@ class StrandGenerator {
 
 // Used since array equality doesn't work in javascript
 class pairMap {
-    map: Map<string,[number, number[]]>;
+    map: Map<string,any>;
     constructor() {
         this.map = new Map();
     }
-    set(key: [number, number] , val: [number,number[]]) {
+    set(key: [number, number] , val: any) {
         this.map.set(key.toString(), val);
     }
     get(key: [number, number]) {
         return this.map.get(key.toString());
     }
-    
+
+    has(key: [number, number]) {
+        return this.map.has(key.toString());
+    }
+
     get size() {
         return this.map.size;
     }
@@ -524,4 +528,4 @@ class vhelix_vbase_to_nucleotide extends pairMap {
     }
 }
 
-export {StrandGenerator, vhelix_vbase_to_nucleotide}
+export {StrandGenerator, vhelix_vbase_to_nucleotide, pairMap}
