@@ -1,4 +1,4 @@
-import { convertFromTo } from "./tacoxdna.js";
+import { convertFromTo, convertFromTo_async } from "./tacoxdna.js";
 import { Logger } from "./libs/base.js";
 Logger.logFunction = (msg) => {
     document.getElementById("output").innerHTML += msg + "<br>";
@@ -25,7 +25,7 @@ convertform.addEventListener("submit", function (e) {
     let spinner = document.getElementById("spinner");
     spinner.hidden = false;
     let opts = {};
-    if (from == "cadnano") {
+    if (from === "cadnano") {
         opts = {
             grid: document.getElementById("cadnano_latticeType").value,
             sequences: false
@@ -38,18 +38,24 @@ convertform.addEventListener("submit", function (e) {
         reader.onload = function (evt) {
             readFiles.set(file, evt.target.result);
             console.log(`Finished reading ${readFiles.size} of ${files.length} files`);
-            if (readFiles.size == files.length) {
-                spinner.hidden = true;
-                let converted = convertFromTo(readFiles, from, to, opts);
-                if (!Array.isArray(converted)) {
-                    converted = [converted];
-                }
-                let basename = file.name.split('.')[0];
-                converted.forEach((out, i) => {
-                    let suffix = suffixes.get(to)[i];
-                    saveString(out, `${basename}.${suffix}`);
+            if (readFiles.size === files.length) {
+                let onDone = (converted) => {
+                    spinner.hidden = true;
+                    if (!Array.isArray(converted)) {
+                        converted = [converted];
+                    }
+                    let basename = file.name.split('.')[0];
+                    converted.forEach((out, i) => {
+                        let suffix = suffixes.get(to)[i];
+                        saveString(out, `${basename}.${suffix}`);
+                    });
+                    Logger.log(`Conversion finished, downloading file${(converted.length > 1) ? 's' : ''}`);
+                };
+                convertFromTo_async(readFiles, from, to, opts).then(onDone).catch(() => {
+                    // Browser probably doesn't support module web workers
+                    let converted = convertFromTo(readFiles, from, to, opts);
+                    onDone(converted);
                 });
-                Logger.log(`Conversion finished, downloading file${(converted.length > 1) ? 's' : ''}`);
             }
         };
         reader.readAsText(file);

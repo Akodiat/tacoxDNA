@@ -12,8 +12,9 @@
       "./ts/libs/utils.ts",
       "./ts/libs/base.ts",
       "./ts/libs/cadnano_utils.ts",
-      "./ts/cadnano_oxDNA.ts",
+      "./ts/cadnanoLoader.ts",
       "./ts/tacoxdna.ts",
+      "./ts/conversionWorker.ts",
       "./ts/main.ts",
     ]
 }

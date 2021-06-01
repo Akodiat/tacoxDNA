@@ -43,9 +43,9 @@ class StrandGenerator {
             For dsDNA (double=true) : bp >= 30
             Will throw warnings. Allowed, but use at your own risk.
         DELTA_LK --- Integer change in linking number from Lk0 (default 0)
-            Only valid if circular==true
+            Only valid if circular===true
         BP_PER_TURN --- Base pairs per complete 2*pi helix turn. (default 10.34)
-            Only valid if circular==true
+            Only valid if circular===true
         ds_start --- Index (from 0) to begin double stranded region (default undefined)
         ds_end --- Index (from 0) to end double stranded region (default undefined)
             Default === undefined, which is entirely dsDNA; sets ds_start = 0, ds_end=bp;
@@ -70,7 +70,7 @@ class StrandGenerator {
         */
 
         //  Loads of input checking...
-        if (typeof sequence == 'string') {
+        if (typeof sequence === 'string') {
             try {
                 sequence = Array.from(sequence).map(c=>base.base_to_number[c]);
             }
@@ -92,7 +92,7 @@ class StrandGenerator {
             }
         }
 
-        if (circular == true && bp < 30) {
+        if (circular && bp < 30) {
             //  30 is about the cut off for circular dsDNA. Anything shorter will probably clash.
             //  oxDNA can relax down to 18.
             //  4 is about the cut off for circular ssDNA. Use dsDNA cutoff for saftey.
@@ -100,7 +100,7 @@ class StrandGenerator {
         }
 
         let option_use_helicity = true;
-        if (circular == true && bp < 30 && double == false) {
+        if (circular && bp < 30 && !double) {
             base.Logger.log("sequence is too short! Generating ssDNA without imposed helicity", base.Logger.WARNING)
             //  Do not impose helcity to generate shorter circular ssDNA
             if (!force_helicity) {
@@ -150,7 +150,7 @@ class StrandGenerator {
 
         let torus_perp: THREE.Vector3, angle: number, radius: number;
         //  Circular strands require a continuious deformation of the ideal helical pitch
-        if (circular == true) {
+        if (circular) {
             //  Unit vector orthogonal to plane of torus
             //  Note: Plane of torus defined by v1,direction
             torus_perp = v1.clone().cross(direction);
@@ -206,7 +206,7 @@ class StrandGenerator {
         }
 
         //  Fill in complement strand
-        if (double == true) {
+        if (double) {
             let ns2 = new base.Strand();
             for (let i=ds_end-1; i<=ds_start; i--) {
                 //  Note that the complement strand is built in reverse order
@@ -216,7 +216,7 @@ class StrandGenerator {
                 let nt2_cm_pos = a1.clone().multiplyScalar(-(base.FENE_EPS + 2 * base.POS_BACK)).add(nt.cm_pos);
                 ns2.add_nucleotide(new base.Nucleotide(nt2_cm_pos, a1, a3, 3 - sequence[i]));
             }
-            if (ds_start == 0 && ds_end == bp && circular == true) {
+            if (ds_start === 0 && ds_end === bp && circular) {
                 ns2.make_circular(true);
             }
             return [ns1, ns2]
@@ -227,7 +227,7 @@ class StrandGenerator {
 
     generate_or_sq(bp: number, sequence=undefined, start_pos=new THREE.Vector3(0., 0., 0.), direction=new THREE.Vector3(0., 0., 1.), perp=undefined, double=true, rot=0., angle: number | number[] = Math.PI / 180 * 33.75, length_change=[], region_begin=[], region_end=[]) {
         if (length_change && region_begin.length != region_end.length) {
-            if ((region_end.length + 1) == region_begin.length) {
+            if ((region_end.length + 1) === region_begin.length) {
                 base.Logger.log(`the lengths of begin ${region_begin.length} and end ${region_end.length} arrays are mismatched; I will try to proceed by using the number of basepairs as the last element of the end array`, base.Logger.WARNING)
                 region_end.push(bp + 1)
             } else {
@@ -487,16 +487,16 @@ class vhelix_vbase_to_nucleotide extends pairMap {
         let count = 0;
         const size = this._scaf.size;
         for (const [[vh, vb], [strand_ind, nuc]] of reference._scaf.entries()) {
-            if (strand_ind == add_strand) {
+            if (strand_ind === add_strand) {
                 this.add_scaf(vh, vb, this.strand_count, nuc.map(x=>x + this.nuc_count));
                 count += nuc.length;
             }
         }
         this.nuc_count += count;
-        if (this._scaf.size == size) {
+        if (this._scaf.size === size) {
             return 1;
         } else {
-            if (continue_join == false) {
+            if (!continue_join) {
                 this.strand_count++;
             }
             return 0;
@@ -507,16 +507,16 @@ class vhelix_vbase_to_nucleotide extends pairMap {
         let count = 0;
         const size = this._stap.size;
         for (const [[vh, vb], [strand_ind, nuc]] of reference._stap.entries()) {
-            if (strand_ind == add_strand) {
+            if (strand_ind === add_strand) {
                 this.add_stap(vh, vb, this.strand_count, nuc.map(x=>x + this.nuc_count));
                 count += nuc.length;
             }
         }
         this.nuc_count += count;
-        if (this._stap.size == size) {
+        if (this._stap.size === size) {
             return 1;
         } else {
-            if (continue_join == false) {
+            if (!continue_join) {
                 this.strand_count++;
             }
             return 0;

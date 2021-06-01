@@ -42,13 +42,13 @@ const MM_GROOVING = false;
 let Logger = /** @class */ (() => {
     class Logger {
         static log(msg, level = Logger.INFO, additional) {
-            if (level == undefined) {
+            if (level === undefined) {
                 level = Logger.INFO;
             }
             if (level < Logger.debug_level) {
                 return;
             }
-            if (additional != undefined && Logger.debug_level == Logger.DEBUG) {
+            if (additional != undefined && Logger.debug_level === Logger.DEBUG) {
                 Logger.logFunction(`${Logger.messages[level]}: ${msg} (additional info: '${additional}')`);
             }
             else {
@@ -322,7 +322,7 @@ let Strand = /** @class */ (() => {
             }
         }
         add_nucleotide(n) {
-            if (this._nucleotides.length == 0) {
+            if (this._nucleotides.length === 0) {
                 this._first = n.index;
             }
             n.strand = this.index;
@@ -337,13 +337,13 @@ let Strand = /** @class */ (() => {
                 let n3;
                 let n5;
                 if (this._circular) {
-                    if (n.index == this._first) {
+                    if (n.index === this._first) {
                         n3 = this._last;
                     }
                     else {
                         n3 = n.index - 1;
                     }
-                    if (n.index == this._last) {
+                    if (n.index === this._last) {
                         n5 = this._first;
                     }
                     else {
@@ -351,13 +351,13 @@ let Strand = /** @class */ (() => {
                     }
                 }
                 else {
-                    if (n.index == this._first) {
+                    if (n.index === this._first) {
                         n3 = -1;
                     }
                     else {
                         n3 = n.index - 1;
                     }
-                    if (n.index == this._last) {
+                    if (n.index === this._last) {
                         n5 = -1;
                     }
                     else {
@@ -502,7 +502,7 @@ class System {
                     added.push(s);
                 }
             }
-            if (added.length == ss.length) {
+            if (added.length === ss.length) {
                 return true;
             }
             else {
@@ -562,13 +562,13 @@ class System {
                 let n5;
                 let n3;
                 if (s._circular) {
-                    if (i == 0) {
+                    if (i === 0) {
                         n5 = s._nucleotides.slice(-1)[0].index;
                     }
                     else {
                         n5 = s._nucleotides[i - 1].index;
                     }
-                    if (i == s._nucleotides.length - 1) {
+                    if (i === s._nucleotides.length - 1) {
                         n3 = s._nucleotides[0].index;
                     }
                     else {
@@ -576,13 +576,13 @@ class System {
                     }
                 }
                 else {
-                    if (i == 0) {
+                    if (i === 0) {
                         n5 = -1;
                     }
                     else {
                         n5 = s._nucleotides[i - 1].index;
                     }
-                    if (i == s._nucleotides.length - 1) {
+                    if (i === s._nucleotides.length - 1) {
                         n3 = -1;
                     }
                     else {
@@ -632,7 +632,7 @@ class System {
             if (interactions.length > 1) {
                 Logger.log("more than 1 HB for a nucleotide", Logger.WARNING);
             }
-            if (interactions.length == 0) {
+            if (interactions.length === 0) {
                 nupack_string += ".";
             }
             else if (interactions[0] > n1) {

@@ -1,4 +1,26 @@
-import {loadCadnano} from "./cadnano_oxDNA.js";
+import {loadCadnano} from "./cadnanoLoader.js";
+
+async function convertFromTo_async(inputs: Map<string, string>, from: string, to: string, opts) {
+    const worker = new Worker("./js/conversionWorker.js", {type: "module"});
+
+    return new Promise((resolve, reject) => {
+        try {
+          worker.onmessage = result => {
+            resolve(result.data);
+            worker.terminate();
+          };
+
+          worker.onerror = error => {
+            reject(error);
+            worker.terminate();
+          };
+
+          worker.postMessage([inputs, from, to, opts]);
+        } catch (error) {
+          reject(error);
+        }
+      });
+}
 
 function convertFromTo(inputs: Map<string, string>, from: string, to: string, opts) {
     let sys;
@@ -21,4 +43,4 @@ function convertFromTo(inputs: Map<string, string>, from: string, to: string, op
     }
 }
 
-export {convertFromTo}
+export {convertFromTo, convertFromTo_async}

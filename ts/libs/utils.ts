@@ -12,7 +12,7 @@ function randint(low: number, high?: number, size=1): number | number[] {
     for (let i=0;i<size;i++){
         a[i] = low + Math.floor(Math.random()*(high-low));
     };
-    if (size == 1) {
+    if (size === 1) {
         return a[0];
     }
     return a;
@@ -21,7 +21,7 @@ function randint(low: number, high?: number, size=1): number | number[] {
 //From https://stackoverflow.com/a/16436975
 function arraysEqual(a: any[], b: any[]) {
     if (a === b) return true;
-    if (a == null || b == null) return false;
+    if (a === null || b === null) return false;
     if (a.length !== b.length) return false;
   
     for (var i = 0; i < a.length; ++i) {
@@ -108,7 +108,7 @@ function get_random_rotation_matrix() {
     let [v1, v2, v3] = get_orthonormalized_base(get_random_vector(), get_random_vector(), get_random_vector());
 
     let R = new THREE.Matrix3().set([v1.toArray(), v2.toArray(), v3.toArray()]);
-    //  rotations have det == 1
+    //  rotations have det === 1
     if (R.determinant() < 0) {
         R = new THREE.Matrix3().set([v2.toArray(), v1.toArray(), v3.toArray()]);
     }

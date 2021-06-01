@@ -11,7 +11,7 @@ function randint(low, high, size = 1) {
         a[i] = low + Math.floor(Math.random() * (high - low));
     }
     ;
-    if (size == 1) {
+    if (size === 1) {
         return a[0];
     }
     return a;
@@ -20,7 +20,7 @@ function randint(low, high, size = 1) {
 function arraysEqual(a, b) {
     if (a === b)
         return true;
-    if (a == null || b == null)
+    if (a === null || b === null)
         return false;
     if (a.length !== b.length)
         return false;
@@ -90,7 +90,7 @@ function get_random_vector() {
 function get_random_rotation_matrix() {
     let [v1, v2, v3] = get_orthonormalized_base(get_random_vector(), get_random_vector(), get_random_vector());
     let R = new THREE.Matrix3().set([v1.toArray(), v2.toArray(), v3.toArray()]);
-    //  rotations have det == 1
+    //  rotations have det === 1
     if (R.determinant() < 0) {
         R = new THREE.Matrix3().set([v2.toArray(), v1.toArray(), v3.toArray()]);
     }
