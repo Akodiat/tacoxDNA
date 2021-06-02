@@ -155,25 +155,25 @@ let Nucleotide = /** @class */ (() => {
         get_base() {
             /*
             Returns a number containing base id
-            >>> v1 = np.array([0.,0.,0.]);
-            >>> v2 = np.array([1.,0.,0.]);
-            >>> v3 = np.array([0.,0.,1.]);
-            >>> Nucleotide(v1, v2, v3, 'A').get_base()
+            >>> v1 = new THREE.Vector3(0.,0.,0.);
+            >>> v2 = new THREE.Vector3(1.,0.,0.);
+            >>> v3 = new THREE.Vector3(0.,0.,1.);
+            >>> new Nucleotide(v1, v2, v3, 'A').get_base()
             'A'
-            >>> Nucleotide(v1, v2, v3, "C").get_base()
+            >>> new Nucleotide(v1, v2, v3, "C").get_base()
             'C'
-            >>> Nucleotide(v1, v2, v3, "G").get_base()
+            >>> new Nucleotide(v1, v2, v3, "G").get_base()
             'G'
-            >>> Nucleotide(v1, v2, v3, "T").get_base()
+            >>> new Nucleotide(v1, v2, v3, "T").get_base()
             'T'
-            >>> Nucleotide(v1, v2, v3, 1).get_base()
+            >>> new Nucleotide(v1, v2, v3, 1).get_base()
             'G'
-            >>> Nucleotide(v1, v2, v3, 103).get_base()
+            >>> new Nucleotide(v1, v2, v3, 103).get_base()
             '103'
-            >>> Nucleotide(v1, v2, v3, -97).get_base()
+            >>> new Nucleotide(v1, v2, v3, -97).get_base()
             '-97'
             */
-            if (this._base in [0, 1, 2, 3]) {
+            if ([0, 1, 2, 3].includes(this._base)) {
                 return number_to_base[this._base];
             }
             else {
@@ -554,7 +554,7 @@ class System {
         };
         for (const s of this._strands) {
             let strand = {
-                'id': s.index, 'end3': s._nucleotides.slice(-1)[0].index, 'end5': s._nucleotides[0].index,
+                'id': s.index, 'end3': s._nucleotides[0].index, 'end5': s._nucleotides.slice(-1)[0].index,
                 'class': 'NucleicAcidStrand', 'monomers': []
             };
             for (let i = 0; i < s.N; i++) {
@@ -563,30 +563,30 @@ class System {
                 let n3;
                 if (s._circular) {
                     if (i === 0) {
-                        n5 = s._nucleotides.slice(-1)[0].index;
+                        n3 = s._nucleotides.slice(-1)[0].index;
                     }
                     else {
-                        n5 = s._nucleotides[i - 1].index;
+                        n3 = s._nucleotides[i - 1].index;
                     }
                     if (i === s._nucleotides.length - 1) {
-                        n3 = s._nucleotides[0].index;
+                        n5 = s._nucleotides[0].index;
                     }
                     else {
-                        n3 = s._nucleotides[i + 1].index;
+                        n5 = s._nucleotides[i + 1].index;
                     }
                 }
                 else {
                     if (i === 0) {
-                        n5 = -1;
-                    }
-                    else {
-                        n5 = s._nucleotides[i - 1].index;
-                    }
-                    if (i === s._nucleotides.length - 1) {
                         n3 = -1;
                     }
                     else {
-                        n3 = s._nucleotides[i + 1].index;
+                        n3 = s._nucleotides[i - 1].index;
+                    }
+                    if (i === s._nucleotides.length - 1) {
+                        n5 = -1;
+                    }
+                    else {
+                        n5 = s._nucleotides[i + 1].index;
                     }
                 }
                 let nucleotide = {

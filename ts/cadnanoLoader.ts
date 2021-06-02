@@ -1215,15 +1215,15 @@ function loadCadnano(source_file, grid, sequences?, side=undefined) {
     }
 
     //  Find colors
-    let pos_to_color = new Map();
+    let pos_to_color = new cu.PairMap();
     for (const vh of cadsys.vhelices) {
         for (const [vb, color] of vh.stap_colors) {
-            pos_to_color.set((vh.num, vb), color);
+            pos_to_color.set([vh.num, vb], color);
         }
     }
 
     //  Create inverse mapping to find pairs by their positions
-    let pos_to_id = new cu.pairMap();
+    let pos_to_id = new cu.PairMap();
     for (const [bid, helix] of id_to_pos.entries()) {
         if (!pos_to_id.has(helix)) {
             pos_to_id.set(helix, []);
@@ -1260,7 +1260,7 @@ function loadCadnano(source_file, grid, sequences?, side=undefined) {
     //  (basepairs, clusters and colors)
     for (const s of rev_sys._strands) {
         for (const n of s._nucleotides) {
-            if (n.index in id_to_pos) {
+            if (id_to_pos.has(n.index)) {
                 //  Find which helix and position the nucleotide had
                 let [vh, vb] = id_to_pos.get(n.index);
                 let paired = pos_to_id.get([vh,vb]);
@@ -1282,8 +1282,12 @@ function loadCadnano(source_file, grid, sequences?, side=undefined) {
                     n.cluster = cluster_ids.get(cid);
 
                     //  If this is the staple strand, check if it has a color
-                    if (n === staple_nuc && pos_to_color.has([vh, vb])) {
-                        n.color = pos_to_color.get([vh, vb]);
+                    if (n === staple_nuc) {
+                        if (pos_to_color.has([vh, vb])) {
+                            n.color = pos_to_color.get([vh, vb]);
+                        }
+                    } else {
+                        n.color = 3633362; // Make scaffold blue
                     }
                 } else {
                     n.cluster = -1;

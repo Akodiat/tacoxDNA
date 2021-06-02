@@ -424,7 +424,7 @@ class StrandGenerator {
 }
 
 // Used since array equality doesn't work in javascript
-class pairMap {
+class PairMap {
     map: Map<string,any>;
     constructor() {
         this.map = new Map();
@@ -460,16 +460,16 @@ class pairMap {
     }
 }
 
-class vhelix_vbase_to_nucleotide extends pairMap {
-    _scaf: pairMap;
-    _stap: pairMap;
+class vhelix_vbase_to_nucleotide extends PairMap {
+    _scaf: PairMap;
+    _stap: PairMap;
     nuc_count: number;
     strand_count: number;
     //  at the moment squares with skips in have entries in the dicts but with the nucleotide list empty (rather than having no entry) - I'm not sure whether or not this is desirable. It's probably ok
     constructor() {
         super();
-        this._scaf = new pairMap();
-        this._stap = new pairMap();
+        this._scaf = new PairMap();
+        this._stap = new PairMap();
         this.nuc_count = 0 //  record the nucleotide count, updated only after a whole strand is added;
         this.strand_count = 0;
     }
@@ -528,4 +528,4 @@ class vhelix_vbase_to_nucleotide extends pairMap {
     }
 }
 
-export {StrandGenerator, vhelix_vbase_to_nucleotide, pairMap}
+export {StrandGenerator, vhelix_vbase_to_nucleotide, PairMap}
