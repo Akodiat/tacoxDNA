@@ -773,28 +773,28 @@ class System(object):
 
         for s in self._strands:
             strand = {
-                'id': s.index, 'end3': s._nucleotides[-1].index, 'end5': s._nucleotides[0].index,
+                'id': s.index, 'end3': s._nucleotides[0].index, 'end5': s._nucleotides[-1].index,
                 'class': 'NucleicAcidStrand', 'monomers': []
             }
             for i, n in enumerate(s._nucleotides):
                 if s._circular:
                     if i == 0:
-                        n5 = s._nucleotides[-1].index
+                        n3 = s._nucleotides[-1].index
                     else:
-                        n5 = s._nucleotides[i-1].index
+                        n3 = s._nucleotides[i-1].index
                     if i == len(s._nucleotides)-1:
-                        n3 = s._nucleotides[0].index
+                        n5 = s._nucleotides[0].index
                     else:
-                        n3 = s._nucleotides[i+1].index
+                        n5 = s._nucleotides[i+1].index
                 else:
                     if i == 0:
-                        n5 = -1
-                    else:
-                        n5 = s._nucleotides[i-1].index
-                    if i == len(s._nucleotides)-1:
                         n3 = -1
                     else:
-                        n3 = s._nucleotides[i+1].index
+                        n3 = s._nucleotides[i-1].index
+                    if i == len(s._nucleotides)-1:
+                        n5 = -1
+                    else:
+                        n5 = s._nucleotides[i+1].index
                 nucleotide = {
                     'id': n.index,
                     'type': n.get_base(),
