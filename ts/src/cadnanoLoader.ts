@@ -1,7 +1,7 @@
-import * as THREE from "./libs/three.module.js"
-import * as base from "./libs/base.js";
-import * as cu from "./libs/cadnano_utils.js";
-import * as utils from "./libs/utils.js";
+import {Vector3} from 'three'
+import * as base from "./libs/base";
+import * as cu from "./libs/cadnano_utils";
+import * as utils from "./libs/utils";
 
 const DIST_HEXAGONAL = 2.55  //  distance between centres of virtual helices (hexagonal array);
 const DIST_SQUARE = 2.60  //  distance between centres of virtual helices (square array);
@@ -49,12 +49,12 @@ class vh_nodes {
     }
 }
 
-function vhelix_rotation_origami_sq(direction: THREE.Vector3, perp: THREE.Vector3) {
+function vhelix_rotation_origami_sq(direction: Vector3, perp: Vector3) {
     return perp.clone().applyAxisAngle(direction, Math.PI * 15. / 180);
 }
 
 
-function vhelix_rotation_origami_he(direction: THREE.Vector3, perp: THREE.Vector3) {
+function vhelix_rotation_origami_he(direction: Vector3, perp: Vector3) {
     return perp.clone().applyAxisAngle(direction, Math.PI * 160. / 180);
 }
 
@@ -442,15 +442,15 @@ function generate_vhelices_origami_sq(vhelix_direction, vhelix_perp, h) {
     }
             
     //  make the virtual helices
-    let pos: THREE.Vector3, direction: THREE.Vector3, perp: THREE.Vector3, rot: number, angles: number[];
+    let pos: Vector3, direction: Vector3, perp: Vector3, rot: number, angles: number[];
     if (h.num % 2 === 0) {
-        pos = new THREE.Vector3(h.col * DIST_SQUARE, h.row * DIST_SQUARE, 0);
+        pos = new Vector3(h.col * DIST_SQUARE, h.row * DIST_SQUARE, 0);
         direction = vhelix_direction.clone();
         perp = vhelix_perp.clone();
         rot = 0.;
         angles = helix_angles.slice();
     } else {
-        pos = new THREE.Vector3(h.col * DIST_SQUARE, h.row * DIST_SQUARE, (h.len - 1) * base.BASE_BASE);
+        pos = new Vector3(h.col * DIST_SQUARE, h.row * DIST_SQUARE, (h.len - 1) * base.BASE_BASE);
         direction = vhelix_direction.clone().negate();
         perp = vhelix_perp.clone().negate();
         rot = -(sum(...helix_angles)) % (2 * Math.PI);
@@ -463,7 +463,7 @@ function generate_vhelices_origami_sq(vhelix_direction, vhelix_perp, h) {
 }
 
 
-function generate_vhelices_origami_he(vhelix_direction: THREE.Vector3, vhelix_perp: THREE.Vector3, h: vhelix) {
+function generate_vhelices_origami_he(vhelix_direction: Vector3, vhelix_perp: Vector3, h: vhelix) {
     let g = new cu.StrandGenerator();
     //  generate helix angles
     let helix_angles = new Array(h.len - 1);
@@ -506,15 +506,15 @@ function generate_vhelices_origami_he(vhelix_direction: THREE.Vector3, vhelix_pe
     }
 
     //  make the virtual helices
-    let pos: THREE.Vector3, direction: THREE.Vector3, perp: THREE.Vector3, rot: number, strands;
+    let pos: Vector3, direction: Vector3, perp: Vector3, rot: number, strands;
     if (h.num % 2 === 0) {
-        pos = new THREE.Vector3(h.col * Math.sqrt(3) * DIST_HEXAGONAL / 2, h.row * 3 * DIST_HEXAGONAL / 2, 0);
+        pos = new Vector3(h.col * Math.sqrt(3) * DIST_HEXAGONAL / 2, h.row * 3 * DIST_HEXAGONAL / 2, 0);
         direction = vhelix_direction.clone();
         perp = vhelix_perp.clone();
         rot = 0.;
         strands = g.generate_or_sq(h.len, undefined, pos, direction, perp, true, rot, helix_angles);
     } else {
-        pos = new THREE.Vector3(h.col * Math.sqrt(3) * DIST_HEXAGONAL / 2, h.row * 3 * DIST_HEXAGONAL / 2 + DIST_HEXAGONAL / 2, (h.len - 1) * base.BASE_BASE);
+        pos = new Vector3(h.col * Math.sqrt(3) * DIST_HEXAGONAL / 2, h.row * 3 * DIST_HEXAGONAL / 2 + DIST_HEXAGONAL / 2, (h.len - 1) * base.BASE_BASE);
         direction = vhelix_direction.clone().negate();
         perp = vhelix_perp.clone().negate();
         if (base.MM_GROOVING) {
@@ -835,16 +835,16 @@ function loadCadnano(source_file, grid, sequences?, side=undefined) {
         side = cadsys.bbox();
         base.Logger.log(`Using default box size, a factor ${BOX_FACTOR} larger than the size of the cadnano system`, base.Logger.INFO);
     }
-    let vhelix_direction_initial = new THREE.Vector3(0, 0, 1);
-    let vhelix_perp_initial = new THREE.Vector3(1, 0, 0);
+    let vhelix_direction_initial = new Vector3(0, 0, 1);
+    let vhelix_perp_initial = new Vector3(1, 0, 0);
     if (origami_sq) {
         vhelix_perp_initial = vhelix_rotation_origami_sq(vhelix_direction_initial, vhelix_perp_initial);
     } else if (origami_he) {
         vhelix_perp_initial = vhelix_rotation_origami_he(vhelix_direction_initial, vhelix_perp_initial);
     }
 
-    let slice_sys = new base.System(new THREE.Vector3(side, side, side));
-    let final_sys = new base.System(new THREE.Vector3(side, side, side));
+    let slice_sys = new base.System(new Vector3(side, side, side));
+    let final_sys = new base.System(new Vector3(side, side, side));
     let strand_number = -1;
     let partner_list_scaf = [];
     let partner_list_stap = [];

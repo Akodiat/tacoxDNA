@@ -5,9 +5,9 @@ Created on Nov 11, 2018
 */
 
 
-import * as base from "./base.js";
-import * as utils from "./utils.js"
-import * as THREE from "./three.module.js"
+import * as base from "./base"
+import * as utils from "./utils"
+import {Vector3, Quaternion} from 'three'
 
 const BP = "bp";
 const DEGREES = "degrees";
@@ -15,7 +15,7 @@ const DEGREES = "degrees";
 
 class StrandGenerator {
 
-    generate(bp, sequence=undefined, start_pos=new THREE.Vector3(0, 0, 0), direction=new THREE.Vector3(0, 0, 1), perp=undefined, rot=0., double=true, circular=false, DELTA_LK=0, BP_PER_TURN=10.34, ds_start=undefined, ds_end=undefined, force_helicity=false) {
+    generate(bp, sequence=undefined, start_pos=new Vector3(0, 0, 0), direction=new Vector3(0, 0, 1), perp=undefined, rot=0., double=true, circular=false, DELTA_LK=0, BP_PER_TURN=10.34, ds_start=undefined, ds_end=undefined, force_helicity=false) {
         /*
         Generate a strand of DNA.
             - linear, circular (circular)
@@ -30,8 +30,8 @@ class StrandGenerator {
             Ex: [0,1,2,3,0]
             Ex: "AGCTA"
             See dictionary base.base_to_number for int/char conversion {0:'A'}
-        start_pos --- Location to begin building the strand (default new THREE.Vector3(0, 0, 0))
-        direction --- a3 vector, orientation of the base (default new THREE.Vector3(0, 0, 1))
+        start_pos --- Location to begin building the strand (default new Vector3(0, 0, 0))
+        direction --- a3 vector, orientation of the base (default new Vector3(0, 0, 1))
         perp --- Sets a1 vector, the orientation of the backbone. (default false)
             Must be perpendicular to direction (as a1 must be perpendicular to a3)
             If perp === undefined or false, perp is set to a random orthogonal angle
@@ -125,13 +125,13 @@ class StrandGenerator {
         let dir_norm = Math.sqrt(direction.dot(direction));
         if (dir_norm < 1e-10) {
             base.Logger.log("direction must be a valid vector, defaulting to (0, 0, 1)", base.Logger.WARNING)
-            direction = new THREE.Vector3(0, 0, 1);
+            direction = new Vector3(0, 0, 1);
         } else {
             direction.divideScalar(dir_norm);
         }
-        let v1: THREE.Vector3;
+        let v1: Vector3;
         if (!perp) {
-            v1 = new THREE.Vector3(
+            v1 = new Vector3(
                 Math.random(), Math.random(), Math.random()
             );
             v1.sub(direction.clone().multiplyScalar(direction.clone().dot(v1)));
@@ -148,7 +148,7 @@ class StrandGenerator {
         let rb = start_pos.clone()
         let a3 = direction;
 
-        let torus_perp: THREE.Vector3, angle: number, radius: number;
+        let torus_perp: Vector3, angle: number, radius: number;
         //  Circular strands require a continuious deformation of the ideal helical pitch
         if (circular) {
             //  Unit vector orthogonal to plane of torus
@@ -166,7 +166,7 @@ class StrandGenerator {
             for (let i=0; i<bp; i++) {
                 //  Torus plane defined by direction and v1
                 let v_torus = v1.clone().multiplyScalar(base.BASE_BASE * Math.cos(i * angle)).add(direction.clone().multiplyScalar(base.BASE_BASE * Math.sin(i * angle)));
-                rb += v_torus;
+                rb.add(v_torus);
 
                 //  a3 is tangent to the torus
                 a3 = v_torus.clone().normalize();
@@ -176,31 +176,31 @@ class StrandGenerator {
 
                 //  Apply the rotation matrix
                 a1.applyAxisAngle(a3, i * (Math.round(Math.floor(bp / BP_PER_TURN)) + DELTA_LK) / bp * 2* Math.PI)
-                ns1.add_nucleotide(new base.Nucleotide(rb - base.CM_CENTER_DS * a1, a1, a3, sequence[i]));
+                ns1.add_nucleotide(new base.Nucleotide(rb.clone().sub(a1.clone().multiplyScalar(base.CM_CENTER_DS)), a1, a3, sequence[i]));
             }
             ns1.make_circular(true);
         } else if (circular && !option_use_helicity) {
             for(let i=0; i<bp; i++) {
-                rb = new THREE.Vector3(
+                rb = new Vector3(
                     Math.cos (i * angle) * radius + 0.34 * Math.cos(i * angle),
                     Math.sin (i * angle) * radius + 0.34 * Math.sin(i * angle),
                     0,
                 );
-                a1 = new THREE.Vector3(
+                a1 = new Vector3(
                     Math.cos (i * angle),
                     Math.sin (i * angle),
                     0
                 );
-                ns1.add_nucleotide(new base.Nucleotide(rb, a1, new THREE.Vector3(0, 0, 1), sequence[i]));
+                ns1.add_nucleotide(new base.Nucleotide(rb, a1, new Vector3(0, 0, 1), sequence[i]));
             }
             ns1.make_circular(true);
         } else {
             //  Add nt in canonical double helix
             for(let i=0; i<bp; i++) {
-                ns1.add_nucleotide(new base.Nucleotide(rb - base.CM_CENTER_DS * a1, a1, a3, sequence[i]))
+                ns1.add_nucleotide(new base.Nucleotide(rb.clone().sub(a1.clone().multiplyScalar(base.CM_CENTER_DS)), a1, a3, sequence[i]))
                 if (i != bp - 1) {
                     a1.applyAxisAngle(direction, 35.9 * Math.PI/180);
-                    rb += a3.multiplyScalar(base.BASE_BASE);
+                    rb.add(a3.multiplyScalar(base.BASE_BASE));
                 }
             }
         }
@@ -225,7 +225,7 @@ class StrandGenerator {
         }
     }
 
-    generate_or_sq(bp: number, sequence=undefined, start_pos=new THREE.Vector3(0., 0., 0.), direction=new THREE.Vector3(0., 0., 1.), perp=undefined, double=true, rot=0., angle: number | number[] = Math.PI / 180 * 33.75, length_change=[], region_begin=[], region_end=[]) {
+    generate_or_sq(bp: number, sequence=undefined, start_pos=new Vector3(0., 0., 0.), direction=new Vector3(0., 0., 1.), perp=undefined, double=true, rot=0., angle: number | number[] = Math.PI / 180 * 33.75, length_change=[], region_begin=[], region_end=[]) {
         if (length_change && region_begin.length != region_end.length) {
             if ((region_end.length + 1) === region_begin.length) {
                 base.Logger.log(`the lengths of begin ${region_begin.length} and end ${region_end.length} arrays are mismatched; I will try to proceed by using the number of basepairs as the last element of the end array`, base.Logger.WARNING)
@@ -260,14 +260,14 @@ class StrandGenerator {
         let dir_norm = Math.sqrt(direction.dot(direction));
         if (dir_norm < 1e-10) {
             base.Logger.log("direction must be a valid vector, defaulting to (0, 0, 1)", base.Logger.WARNING)
-            direction = new THREE.Vector3(0, 0, 1);
+            direction = new Vector3(0, 0, 1);
         } else { 
             direction.divideScalar(dir_norm);
         }
 
-        let v1: THREE.Vector3;
+        let v1: Vector3;
         if (perp === undefined) {
-            v1 = new THREE.Vector3(Math.random(), Math.random(), Math.random());
+            v1 = new Vector3(Math.random(), Math.random(), Math.random());
             v1.sub(direction.clone().multiplyScalar(direction.clone().dot(v1)))
             v1.normalize();
         } else {
@@ -275,15 +275,15 @@ class StrandGenerator {
         }
 
         let ns1 = new base.Strand();
-        let a1: THREE.Vector3 = v1.clone().applyAxisAngle(direction, rot);
-        let rb: THREE.Vector3 = start_pos.clone();
-        let a3: THREE.Vector3 = direction.clone();
+        let a1: Vector3 = v1.clone().applyAxisAngle(direction, rot);
+        let rb: Vector3 = start_pos.clone();
+        let a3: Vector3 = direction.clone();
         let Rs = [];
 
         for(let i=0; i<bp; i++) {
-            ns1.add_nucleotide(new base.Nucleotide(rb.clone().sub(a1.multiplyScalar(base.CM_CENTER_DS)), a1, a3, sequence[i]));
+            ns1.add_nucleotide(new base.Nucleotide(rb.clone().sub(a1.clone().multiplyScalar(base.CM_CENTER_DS)), a1, a3, sequence[i]));
             if (i != bp - 1) {
-                let R = new THREE.Quaternion().setFromAxisAngle(direction, angle[i]);
+                let R = new Quaternion().setFromAxisAngle(direction, angle[i]);
                 Rs.push(R);
                 a1.applyQuaternion(R).normalize();
                 rb.add(a3.clone().normalize().multiplyScalar(base.BASE_BASE));
@@ -332,7 +332,7 @@ class StrandGenerator {
         }
     }
 
-    generate_double_offset(seqA: string | number[], seqB: string | number[], offset, start_pos=new THREE.Vector3(0, 0, 0), direction=new THREE.Vector3(0, 0, 1), perp=undefined, rot=0): base.Strand[] {
+    generate_double_offset(seqA: string | number[], seqB: string | number[], offset, start_pos=new Vector3(0, 0, 0), direction=new Vector3(0, 0, 1), perp=undefined, rot=0): base.Strand[] {
         let seqa: number[];
         if (typeof seqA === "string") {
             seqa = [...seqA].map(x=>base.base_to_number[x]);
@@ -365,20 +365,20 @@ class StrandGenerator {
         return [s1, s2]
     }
 
-    generate_rw (sequence, start_pos=new THREE.Vector3(0., 0., 0.)) {
+    generate_rw (sequence, start_pos=new Vector3(0., 0., 0.)) {
         /*
         Generate ssDNA as a random walk (high-energy configurations are possible):
             generate(bp=45,double=false,circular=false,random_walk=true)
         */
         //  random walk generator
         base.Logger.log("Generating strand as a random walk. Remember to equilibrate the configuration with MC", base.Logger.WARNING)
-        let d = new THREE.Vector3(0.7525, 0., 0.);
+        let d = new Vector3(0.7525, 0., 0.);
         let pos = start_pos;
         let rw = [];
         rw.push(pos)
         for (let i=1; i<sequence.length; i++) {
             let overlap = true;
-            let trypos: THREE.Vector3;
+            let trypos: Vector3;
             while (overlap) {
                 overlap = false;
                 let R = utils.get_random_rotation_matrix();
