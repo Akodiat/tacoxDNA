@@ -79,11 +79,9 @@
     <!-- Import bundled tacoxdna library -->
     <script src="./ts/dist/tacoxdna.js"></script>
     <script>
-        /*
-        Logger.logFunction = (msg) => {
+        tacoxdna.Logger.logFunction = (msg) => {
             document.getElementById("output").innerHTML += msg + "<br>";
         };
-        */
 
         function saveString(text, filename) {
             let element = document.createElement('a');
