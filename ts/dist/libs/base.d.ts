@@ -1,4 +1,4 @@
-import { Vector3, Matrix3 } from 'three';
+import * as THREE from 'three';
 declare const base_to_number: {
     A: number;
     a: number;
@@ -44,10 +44,10 @@ declare class Logger {
 declare class Nucleotide {
     static index: number;
     index: number;
-    cm_pos: Vector3;
-    cm_pos_box: Vector3;
-    _a1: Vector3;
-    _a3: Vector3;
+    cm_pos: THREE.Vector3;
+    cm_pos_box: THREE.Vector3;
+    _a1: THREE.Vector3;
+    _a3: THREE.Vector3;
     _base: number;
     _L: any;
     _v: any;
@@ -57,26 +57,26 @@ declare class Nucleotide {
     cluster: number;
     color: number;
     strand: number;
-    constructor(cm_pos: any, a1: any, a3: any, base: number | string, v?: Vector3, L?: Vector3, n3?: number, pair?: any, cluster?: any, color?: any);
+    constructor(cm_pos: any, a1: any, a3: any, base: number | string, v?: THREE.Vector3, L?: THREE.Vector3, n3?: number, pair?: any, cluster?: any, color?: any);
     /**
      * Get position of the base centroid
      * Note that cm_pos is the centrod of the backbone and base.
      * @returns the position of the base centroid
      */
-    get pos_base(): Vector3;
-    get pos_stack(): Vector3;
-    get pos_back(): Vector3;
+    get pos_base(): THREE.Vector3;
+    get pos_stack(): THREE.Vector3;
+    get pos_back(): THREE.Vector3;
     /**
      * Get the position of the backbone centroid relative to the centre of mass
         i.e. it will be a vector pointing from the c.o.m. to the backbone
      * @returns position of the backbone centroid relative to the centre of mass
      */
-    get pos_back_rel(): Vector3;
-    get a2(): Vector3;
-    copy(disp?: Vector3, rot?: Matrix3): Nucleotide;
-    translate(disp: Vector3): void;
-    rotate(R: Matrix3, origin?: Vector3): void;
-    distance(other: Nucleotide, PBC?: boolean, box?: Vector3): Vector3;
+    get pos_back_rel(): THREE.Vector3;
+    get a2(): THREE.Vector3;
+    copy(disp?: THREE.Vector3, rot?: THREE.Matrix3): Nucleotide;
+    translate(disp: THREE.Vector3): void;
+    rotate(R: THREE.Matrix3, origin?: THREE.Vector3): void;
+    distance(other: Nucleotide, PBC?: boolean, box?: THREE.Vector3): THREE.Vector3;
     get_base(): string;
     _get_lorenzo_output(): string;
 }
@@ -93,10 +93,10 @@ declare class Strand {
     get sequence(): string | number[];
     _prepare(si: number, ni: number): number;
     copy(): Strand;
-    get cm_pos(): Vector3;
-    set cm_pos(new_pos: Vector3);
+    get cm_pos(): THREE.Vector3;
+    set cm_pos(new_pos: THREE.Vector3);
     translate(amount: any): void;
-    rotate(R: Matrix3, origin?: Vector3): void;
+    rotate(R: THREE.Matrix3, origin?: THREE.Vector3): void;
     append(other: Strand): Strand;
     get_slice(start?: number, end?: number): Strand;
     set sequence(seq: string | number[]);
@@ -113,23 +113,23 @@ declare class Strand {
 declare class System {
     _time: number;
     _ready: boolean;
-    _box: Vector3;
+    _box: THREE.Vector3;
     _N: number;
     _N_strands: number;
     _strands: Strand[];
     _nucleotide_to_strand: number[];
-    _N_cells: Vector3;
-    _cellsides: Vector3;
+    _N_cells: THREE.Vector3;
+    _cellsides: THREE.Vector3;
     E_pot: number;
     E_kin: number;
     E_tot: number;
-    constructor(box: Vector3, time?: number, E_pot?: number, E_kin?: number);
+    constructor(box: THREE.Vector3, time?: number, E_pot?: number, E_kin?: number);
     get sequences(): number[][];
     get N(): number;
     get N_strands(): number;
     _prepare(): void;
     copy(): System;
-    join(other: System, box: Vector3): System;
+    join(other: System, box: THREE.Vector3): System;
     add_strand(s: Strand): boolean;
     add_strands(ss: Strand | Strand[]): boolean;
     rotate(amount: any, origin: any): void;

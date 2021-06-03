@@ -1,5 +1,5 @@
 import {FLT_EPSILON} from "./base"
-import {Vector3, Matrix3} from 'three'
+import * as THREE from 'three'
 
 // Behave like numpy.random.randint
 function randint(low: number, high?: number, size=1): number | number[] {
@@ -79,9 +79,9 @@ function get_random_vector_in_sphere(r=1) {
 
     let rnd = ()=>(2*r*Math.random()-r);
 
-    let v = new Vector3(rnd(), rnd(), rnd());
+    let v = new THREE.Vector3(rnd(), rnd(), rnd());
     while (v.dot(v) > r2) {
-        v = new Vector3(rnd(), rnd(), rnd());
+        v = new THREE.Vector3(rnd(), rnd(), rnd());
     }
 
     return v;
@@ -99,21 +99,21 @@ function get_random_vector() {
     }
 
     const ranh = 2. * Math.sqrt(1. - ransq);
-    return new Vector3(ran1 * ranh, ran2 * ranh, 1. - 2. * ransq);
+    return new THREE.Vector3(ran1 * ranh, ran2 * ranh, 1. - 2. * ransq);
 }
 
 
 function get_random_rotation_matrix() {
     let [v1, v2, v3] = get_orthonormalized_base(get_random_vector(), get_random_vector(), get_random_vector());
 
-    let R = new Matrix3().set(
+    let R = new THREE.Matrix3().set(
         v1.x, v1.y, v1.z,
         v2.x, v2.y, v2.z,
         v3.x, v3.y, v3.z,
     );
     //  rotations have det === 1
     if (R.determinant() < 0) {
-        R = new Matrix3().set(
+        R = new THREE.Matrix3().set(
             v2.x, v2.y, v2.z,
             v1.x, v1.y, v1.z,
             v3.x, v3.y, v3.z

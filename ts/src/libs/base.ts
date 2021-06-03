@@ -1,4 +1,4 @@
-import {Vector3, Matrix3} from 'three'
+import * as THREE from 'three'
 /*
 Utility functions.
 base.py includes the classes: System, Strand, Nucleotide
@@ -115,10 +115,10 @@ class Nucleotide {
 
     static index = 0;
     index: number;
-    cm_pos: Vector3;
-    cm_pos_box: Vector3;
-    _a1: Vector3;
-    _a3: Vector3;
+    cm_pos: THREE.Vector3;
+    cm_pos_box: THREE.Vector3;
+    _a1: THREE.Vector3;
+    _a3: THREE.Vector3;
     _base: number;
     _L;
     _v;
@@ -130,7 +130,7 @@ class Nucleotide {
     strand: number;
 
     constructor(cm_pos, a1, a3, base: number | string, 
-        v=new Vector3(0., 0., 0.), L=new Vector3(0., 0., 0.),
+        v=new THREE.Vector3(0., 0., 0.), L=new THREE.Vector3(0., 0., 0.),
         n3=-1,pair=undefined, cluster=undefined,color=undefined
     ) {
         this.index = Nucleotide.index;
@@ -161,15 +161,15 @@ class Nucleotide {
      * Note that cm_pos is the centrod of the backbone and base.
      * @returns the position of the base centroid
      */
-    get pos_base(): Vector3 {
+    get pos_base(): THREE.Vector3 {
         return this.cm_pos.clone().add(this._a1.clone().multiplyScalar(POS_BASE));
     }
 
-    get pos_stack (): Vector3 {
+    get pos_stack (): THREE.Vector3 {
         return this.cm_pos.clone().add(this._a1.clone().multiplyScalar(POS_STACK));
     }
 
-    get pos_back (): Vector3 {
+    get pos_back (): THREE.Vector3 {
         return this.cm_pos.clone().add(this._a1.clone().multiplyScalar(POS_BACK));
     }
 
@@ -178,7 +178,7 @@ class Nucleotide {
         i.e. it will be a vector pointing from the c.o.m. to the backbone
      * @returns position of the backbone centroid relative to the centre of mass
      */
-    get pos_back_rel(): Vector3 {
+    get pos_back_rel(): THREE.Vector3 {
         return this.pos_back.clone().sub(this.cm_pos);
     }
 
@@ -186,7 +186,7 @@ class Nucleotide {
         return this._a3.clone().cross(this._a1);
     }
 
-    copy(disp?: Vector3, rot?: Matrix3) {
+    copy(disp?: THREE.Vector3, rot?: THREE.Matrix3) {
         let copy = new Nucleotide(
             this.cm_pos.clone(), this._a1.clone(), this._a3.clone(),
             this._base, this._L, this._v, this.n3, this.pair,
@@ -201,12 +201,12 @@ class Nucleotide {
         return copy;
     }
 
-    translate(disp: Vector3) {
+    translate(disp: THREE.Vector3) {
         this.cm_pos.add(disp);
         this.cm_pos_box.add(disp);
     }
 
-    rotate(R: Matrix3, origin?: Vector3) {
+    rotate(R: THREE.Matrix3, origin?: THREE.Vector3) {
         if (origin === undefined) {
             origin = this.cm_pos.clone();
         } 
@@ -216,7 +216,7 @@ class Nucleotide {
         this._a3.applyMatrix3(R);
     }
 
-    distance (other: Nucleotide, PBC=true, box?: Vector3): Vector3 {
+    distance (other: Nucleotide, PBC=true, box?: THREE.Vector3): THREE.Vector3 {
         if (PBC && box === undefined) {
             Logger.die ("distance between nucleotides: if PBC is true, box must be provided");
         }
@@ -230,9 +230,9 @@ class Nucleotide {
     get_base(): string {
         /*
         Returns a number containing base id
-        >>> v1 = new Vector3(0.,0.,0.);
-        >>> v2 = new Vector3(1.,0.,0.);
-        >>> v3 = new Vector3(0.,0.,1.);
+        >>> v1 = new THREE.Vector3(0.,0.,0.);
+        >>> v2 = new THREE.Vector3(1.,0.,0.);
+        >>> v3 = new THREE.Vector3(0.,0.,1.);
         >>> new Nucleotide(v1, v2, v3, 'A').get_base()
         'A'
         >>> new Nucleotide(v1, v2, v3, "C").get_base()
@@ -316,7 +316,7 @@ class Strand {
     }
 
     get cm_pos() {
-        let total = new Vector3();
+        let total = new THREE.Vector3();
         this._nucleotides.forEach(n=>{
             total.add(n.cm_pos);
         })
@@ -333,7 +333,7 @@ class Strand {
         this.cm_pos = new_pos;
     }
 
-    rotate(R: Matrix3, origin?: Vector3) {
+    rotate(R: THREE.Matrix3, origin?: THREE.Vector3) {
         if (origin === undefined) { 
             origin = this.cm_pos;
         }
@@ -524,18 +524,18 @@ class System {
 
     _time: number;
     _ready: boolean;
-    _box: Vector3;
+    _box: THREE.Vector3;
     _N: number
     _N_strands: number;
     _strands: Strand[];
     _nucleotide_to_strand: number[];
-    _N_cells: Vector3;
-    _cellsides: Vector3;
+    _N_cells: THREE.Vector3;
+    _cellsides: THREE.Vector3;
     E_pot: number;
     E_kin: number;
     E_tot: number;
 
-    constructor(box: Vector3, time=0, E_pot=0, E_kin=0) {
+    constructor(box: THREE.Vector3, time=0, E_pot=0, E_kin=0) {
         this._time = time;
         this._ready = false;
         this._box = box;
@@ -582,9 +582,9 @@ class System {
         return copy;
     }
 
-    join(other: System, box: Vector3) {
+    join(other: System, box: THREE.Vector3) {
         if (box === undefined) {
-            box = new Vector3(0., 0., 0.);
+            box = new THREE.Vector3(0., 0., 0.);
             for(let i=0; i<3; i++) {
                 if (other._box[i] > this._box[i]) {
                     box[i] = other._box[i];
