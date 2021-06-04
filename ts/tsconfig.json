@@ -9,8 +9,8 @@
         "./src/libs/utils.ts",
         "./src/libs/base.ts",
         "./src/libs/cadnano_utils.ts",
+        "./src/libs/conversionWorker.ts",
         "./src/cadnanoLoader.ts",
-        "./src/conversionWorker.ts",
         "./src/tacoxdna.ts"
     ]
 }

@@ -791,7 +791,7 @@ function getMostCommon(array) {
     }, []);
 }
 
-function loadCadnano(source_file, grid, sequences?, side=undefined) {
+function loadCadnano(source_file: string, grid: string, sequences?, side: number = undefined) {
     let origami_sq = false;
     let origami_he = false;
     if (grid === "sq") {

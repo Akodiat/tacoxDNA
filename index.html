@@ -29,15 +29,16 @@
             <div class="mb-3">
                 <div class="mb-3">
                     <label for="formFile" class="form-label">Input file</label>
-                    <input id="input" class="form-control" type="file" id="formFile">
+                    <input id="input" class="form-control" type="file" id="formFile" onchange="guessInputFormat(this.files)">
                 </div>
             </div>
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <label class="input-group-text" for="fromSelect">Input format</label>
                 </div>
-                <select class="form-select" id="fromSelect">
+                <select class="form-select" id="fromSelect" onchange="toggleInputOpts(this.value)">
                   <option value="cadnano">caDNAno</option>
+                  <option value="rpoly">rpoly</option>
                 </select>
             </div>
             <div id="cadnanoInputOpts" class="input-group-sm">
@@ -82,6 +83,24 @@
         tacoxdna.Logger.logFunction = (msg) => {
             document.getElementById("output").innerHTML += msg + "<br>";
         };
+
+        // Only show options for the selected input format
+        function toggleInputOpts(value) {
+            document.getElementById('cadnanoInputOpts').hidden = value !== 'cadnano';
+        }
+
+        // Try to guess format from file ending
+        function guessInputFormat(files) {
+            let from = document.getElementById('fromSelect');
+            for (const f of files) {
+                if (f.name.endsWith('.rpoly')) {
+                    from.value = 'rpoly'; break;
+                } else if (f.name.endsWith('.json')) {
+                    from.value = 'cadnano'; break;
+                }
+            }
+            toggleInputOpts(from.value);
+        }
 
         function saveString(text, filename) {
             let element = document.createElement('a');
@@ -131,9 +150,9 @@
                             });
                             tacoxdna.Logger.log(`Conversion finished, downloading file${(converted.length > 1) ? 's' : ''}`);
                         };
-                        tacoxdna.convertFromTo_async(readFiles, from, to, opts).then(onDone).catch(() => {
+                        tacoxdna.convertFromTo_async([...readFiles.values()], from, to, opts).then(onDone).catch(() => {
                             // Browser probably doesn't support module web workers
-                            let converted = tacoxdna.convertFromTo(readFiles, from, to, opts);
+                            let converted = tacoxdna.convertFromTo([...readFiles.values()], from, to, opts);
                             onDone(converted);
                         });
                     }

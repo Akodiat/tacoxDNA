@@ -1,4 +1,4 @@
-import { convertFromTo } from "./tacoxdna";
+import { convertFromTo } from "../tacoxdna";
 
 onmessage = function(e) {
     const [inputs, from, to, opts] = e.data;
