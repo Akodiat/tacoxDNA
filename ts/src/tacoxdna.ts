@@ -1,5 +1,6 @@
 import {loadCadnano} from './cadnanoLoader'
 import {loadRpoly} from './rpolyLoader'
+import {loadPDB} from './pdbLoader'
 import {Logger, System} from './libs/base'
 
 function convertFromTo(inputs: string[], from: string, to: string, opts) {
@@ -10,6 +11,9 @@ function convertFromTo(inputs: string[], from: string, to: string, opts) {
             break;
         case 'rpoly':
             sys = loadRpoly(inputs[0]);
+            break;
+        case 'pdb':
+            sys = loadPDB(inputs[0], opts.strand_dir, opts.models_as_strands);
             break;
         default:
             console.log("Unknown input format: "+from);

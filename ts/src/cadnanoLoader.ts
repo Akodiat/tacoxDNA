@@ -7,22 +7,6 @@ const DIST_HEXAGONAL = 2.55  //  distance between centres of virtual helices (he
 const DIST_SQUARE = 2.60  //  distance between centres of virtual helices (square array);
 const BOX_FACTOR = 2  //  factor by which to expand the box (linear dimension);
 
-function sum(...values: number[]) {
-    return values.reduce((a, b) => a + b, 0)
-}
-
-function range(low: number, high?: number) {
-    if (high === undefined) {
-        high = low;
-        low = 0;
-    }
-    let r = [];
-    for (let i=low; i<high; i++) {
-        r.push(i);
-    }
-    return r;
-}
-
 
 class vh_nodes {
     begin: number[];
@@ -101,7 +85,7 @@ function insert_loop_skip(start_pos, direction, perp, rot, helix_angles, vhelix:
                 length_change[i] += j;
             }
             //  get new pitch angles for this effective strand
-            new_angle.push(sum(...helix_angles.slice(begin_gs, end_gs)) / (end_gs - begin_gs + length_change[i]))
+            new_angle.push(utils.sum(...helix_angles.slice(begin_gs, end_gs)) / (end_gs - begin_gs + length_change[i]))
             for (let j=begin_gs; j<end_gs; j++) {
                 helix_angles_new[j] = new_angle[i];
             }
@@ -112,7 +96,7 @@ function insert_loop_skip(start_pos, direction, perp, rot, helix_angles, vhelix:
             new_nodes.add_end(end_gs);  //  begin_gs > end_gs.....
         } else {
             length_change.push(0);
-            new_angle.push(sum(...helix_angles) / helix_angles.length);  //  append an average angle
+            new_angle.push(utils.sum(...helix_angles) / helix_angles.length);  //  append an average angle
             //  adjust beginning/end indices according to length change
             begin_gs += length_change_total;
             end_gs += length_change_total + length_change[i];
@@ -271,9 +255,9 @@ function add_slice_nupack(vhelix: vhelix, strand_number: number, begin_helix: nu
         if (vhelix.skip[vhelix_base] != 1) {
             let add_nuc;
             if ((strand_type + vhelix.num % 2) % 2 === 0) {
-                add_nuc = range(vhelix.loop[vhelix_base] + 1).map(x=>(nucleotide + x));
+                add_nuc = utils.range(vhelix.loop[vhelix_base] + 1).map(x=>(nucleotide + x));
             } else {
-                add_nuc = range(vhelix.loop[vhelix_base] + 1).reverse().map(x=>(nucleotide + x));
+                add_nuc = utils.range(vhelix.loop[vhelix_base] + 1).reverse().map(x=>(nucleotide + x));
             }
             if (strand_type === 0) {
                 index_lookup.set([vhelix.num, vhelix_base], [strand_number, [nucleotide]]);
@@ -310,11 +294,11 @@ function build_nodes(vh) {
         direction = 1;
     }
     for(let i=0; i<vh.scaf.length; i++) {
-        //  need to consider what happens when I add an index to the node list that doesn't fall within the range of square indices in the vhelix
+        //  need to consider what happens when I add an index to the node list that doesn't fall within the utils.range of square indices in the vhelix
         let previd = i - 1 * direction;
         let nextid = i + 1 * direction;
         let prev, prev_stap;
-        if (range(vh.scaf.length).includes(previd)) {
+        if (utils.range(vh.scaf.length).includes(previd)) {
             prev = vh.scaf[previd].type(vh, previd);
             prev_stap = vh.stap[previd].type(vh, previd);
         } else {
@@ -322,7 +306,7 @@ function build_nodes(vh) {
             prev_stap = false;
         }
         let next_, next_stap;
-        if (range(vh.scaf.length).includes(nextid)) {
+        if (utils.range(vh.scaf.length).includes(nextid)) {
             next_ = vh.scaf[nextid].type(vh, nextid);
             next_stap = vh.stap[nextid].type(vh, nextid);
         } else {
@@ -453,7 +437,7 @@ function generate_vhelices_origami_sq(vhelix_direction, vhelix_perp, h) {
         pos = new THREE.Vector3(h.col * DIST_SQUARE, h.row * DIST_SQUARE, (h.len - 1) * base.BASE_BASE);
         direction = vhelix_direction.clone().negate();
         perp = vhelix_perp.clone().negate();
-        rot = -(sum(...helix_angles)) % (2 * Math.PI);
+        rot = -(utils.sum(...helix_angles)) % (2 * Math.PI);
         angles = helix_angles.slice().reverse();
     }
 
@@ -518,9 +502,9 @@ function generate_vhelices_origami_he(vhelix_direction: THREE.Vector3, vhelix_pe
         direction = vhelix_direction.clone().negate();
         perp = vhelix_perp.clone().negate();
         if (base.MM_GROOVING) {
-            rot = -sum(...helix_angles) % (2 * Math.PI) - 0.07;
+            rot = -utils.sum(...helix_angles) % (2 * Math.PI) - 0.07;
         } else {
-            rot = -sum(...helix_angles) % (2 * Math.PI);
+            rot = -utils.sum(...helix_angles) % (2 * Math.PI);
         }
         let angles = helix_angles.slice().reverse();
         strands = g.generate_or_sq(h.len, undefined, pos, direction, perp, true, rot, angles);
@@ -768,7 +752,7 @@ function parse_cadnano(json_string) {
                 vh[key] = val;
             }
         }
-        vh.skiploop_bases = vh.skip.length + sum(...vh.loop) - sum(...vh.skip);
+        vh.skiploop_bases = vh.skip.length + utils.sum(...vh.loop) - utils.sum(...vh.skip);
         cadsys.add_vhelix(vh);
     }
     return cadsys;
@@ -1117,12 +1101,12 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
             const join = join_list[ii];
             let joined_strand = slice_sys._strands[join[0]];
             if (circular.includes(ii)) {
-                for (const k of range(1, join.length - 1)) {
+                for (const k of utils.range(1, join.length - 1)) {
                     joined_strand = joined_strand.append(slice_sys._strands[join[k]]);
                 }
                 joined_strand.make_circular(true);
             } else {
-                for (const k of range(1, join.length)) {
+                for (const k of utils.range(1, join.length)) {
                     joined_strand = joined_strand.append(slice_sys._strands[join[k]]);
                 }
             }
@@ -1134,9 +1118,9 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
             //  of the range by 1), since the final element is just a repeat of the first one.
             let joining_range: number[];
             if (joined_strand._circular) {
-                joining_range = range(join.length - 2);
+                joining_range = utils.range(join.length - 2);
             } else {
-                joining_range = range(join.length - 1);
+                joining_range = utils.range(join.length - 1);
             }
             //  add joined strands to v2n index
             for (const k of joining_range) {
@@ -1177,7 +1161,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
     //  also reverse the vhelix_vbase_to_nucleotide order so it corresponds to the reversed system
     let vh_vb2nuc_rev = new cu.vhelix_vbase_to_nucleotide();
     //  count the number of nucleotides up to but not including the nucleotides in strand ii
-    let nnucs_to_here = range(rev_sys._N_strands);
+    let nnucs_to_here = utils.range(rev_sys._N_strands);
     let nuc_total = 0;
     for (let strandii=0; strandii<rev_sys._strands.length; strandii++) {
         const strand = rev_sys._strands[strandii];

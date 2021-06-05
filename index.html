@@ -39,6 +39,7 @@
                 <select class="form-select" id="fromSelect" onchange="toggleInputOpts(this.value)">
                   <option value="cadnano">caDNAno</option>
                   <option value="rpoly">rpoly</option>
+                  <option value="pdb">PDB</option>
                 </select>
             </div>
             <div id="cadnanoInputOpts" class="input-group-sm">
@@ -49,6 +50,21 @@
                     <select class="form-select" id="cadnano_latticeType">
                         <option value="sq">Square</option>
                         <option value="he">Hexagonal</option>
+                    </select>
+                </div>
+            </div>
+            <div id="pdbInputOpts" class="input-group-sm" hidden>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="pdb_models_as_strands">
+                    <label class="form-check-label" for="exampleCheck1">Interpret PDB models as separate strands</label>
+                  </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                    <label class="input-group-text" for="cadnano_latticeType">Input strand direction</label>
+                    </div>
+                    <select class="form-select" id="pdb_input_strand_dir">
+                        <option value="53">5' → 3'</option>
+                        <option value="35">3' → 5'</option>
                     </select>
                 </div>
             </div>
@@ -87,6 +103,7 @@
         // Only show options for the selected input format
         function toggleInputOpts(value) {
             document.getElementById('cadnanoInputOpts').hidden = value !== 'cadnano';
+            document.getElementById('pdbInputOpts').hidden = value !== 'pdb';
         }
 
         // Try to guess format from file ending
@@ -97,6 +114,8 @@
                     from.value = 'rpoly'; break;
                 } else if (f.name.endsWith('.json')) {
                     from.value = 'cadnano'; break;
+                } else if (f.name.endsWith('.pdb')) {
+                    from.value = 'pdb'; break;
                 }
             }
             toggleInputOpts(from.value);

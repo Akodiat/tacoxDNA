@@ -1,6 +1,66 @@
 import {FLT_EPSILON} from "./base"
 import * as THREE from 'three'
 
+function sum(...values: number[]) {
+    return values.reduce((a, b) => a + b, 0)
+}
+
+function range(low: number, high?: number, step=1) {
+    if (high === undefined) {
+        high = low;
+        low = 0;
+    }
+    let r = [];
+    for (let i=low; i<high; i+=step) {
+        r.push(i);
+    }
+    return r;
+}
+
+// Adepted from https://github.com/nvie/itertools.js
+function* permutations<T>(iterable: Iterable<T>, r?: number): Iterable<Array<T>> {
+    let pool = Array.from(iterable);
+    let n = pool.length;
+    let x = r === undefined ? n : r;
+
+    if (x > n) {
+        return;
+    }
+
+    let indices: Array<number> = Array.from(range(n));
+    let cycles: Array<number> = Array.from(range(n, n - x, -1));
+    let poolgetter = (i) => pool[i];
+
+    yield indices.slice(0, x).map(poolgetter);
+
+    while (n > 0) {
+        let cleanExit: boolean = true;
+        for (let i of range(x - 1, -1, -1)) {
+            cycles[i] -= 1;
+            if (cycles[i] === 0) {
+                indices = indices
+                    .slice(0, i)
+                    .concat(indices.slice(i + 1))
+                    .concat(indices.slice(i, i + 1));
+                cycles[i] = n - i;
+            } else {
+                let j: number = cycles[i];
+
+                let [p, q] = [indices[indices.length - j], indices[i]];
+                indices[i] = p;
+                indices[indices.length - j] = q;
+                yield indices.slice(0, x).map(poolgetter);
+                cleanExit = false;
+                break;
+            }
+        }
+
+        if (cleanExit) {
+            return;
+        }
+    }
+}
+
 // Behave like numpy.random.randint
 function randint(low: number, high?: number, size=1): number | number[] {
     if (high === undefined) {
@@ -123,4 +183,4 @@ function get_random_rotation_matrix() {
     return R;
 }
 
-export {randint, arraysEqual, get_angle, get_orthonormalized_base, get_random_vector_in_sphere, get_random_vector, get_random_rotation_matrix};
+export {sum, range, permutations, randint, arraysEqual, get_angle, get_orthonormalized_base, get_random_vector_in_sphere, get_random_vector, get_random_rotation_matrix};
