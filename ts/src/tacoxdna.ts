@@ -7,7 +7,7 @@ function convertFromTo(inputs: string[], from: string, to: string, opts) {
     let sys: System;
     switch (from) {
         case 'cadnano':
-            sys = loadCadnano(inputs[0], opts.grid, opts.sequences, opts.side);
+            sys = loadCadnano(inputs[0], opts.grid, opts.sequence, opts.side);
             break;
         case 'rpoly':
             sys = loadRpoly(inputs[0]);

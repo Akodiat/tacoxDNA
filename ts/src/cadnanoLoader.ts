@@ -42,7 +42,7 @@ function vhelix_rotation_origami_he(direction: THREE.Vector3, perp: THREE.Vector
     return perp.clone().applyAxisAngle(direction, Math.PI * 160. / 180);
 }
 
-function insert_loop_skip(start_pos, direction, perp, rot, helix_angles, vhelix: vhelix, nodes: vh_nodes, use_seq, seqs) {
+function insert_loop_skip(start_pos, direction, perp, rot, helix_angles, vhelix: vhelix, nodes: vh_nodes) {
     //  return a double strand which is a copy of the double strand in the first argument, but with skips and loops
 
     //  strand is generated right to left i.e. opposite direction to even vhelix
@@ -144,34 +144,12 @@ function insert_loop_skip(start_pos, direction, perp, rot, helix_angles, vhelix:
 
     let g = new cu.StrandGenerator();
     let new_strands = g.generate_or_sq(helix_angles_new.length+1, undefined, start_pos,direction,perp, true, rot, helix_angles_new, length_change, new_nodes.begin, new_nodes.end);
-    if (use_seq) {
-        let sequence;
-        try {
-            sequence = seqs[vhelix.cad_index].map(x=>x);
-        } catch (e) {
-            base.Logger.die("sequence file contains too few rows compared to the number of virtual helices in the cadnano file, dying")
-        }
-        if (vhelix.num % 2 === 1) {
-            sequence.reverse();
-        }
-        if (new_strands[0].N != sequence.length) {
-            base.Logger.log(`Cannot change sequence: lengths don't match; virtual helix ${vhelix.num}, sequence length ${sequence.length}, virtual helix length ${new_strands[0].N} - are skips/loops accounted for?`, base.Logger.WARNING)
-        } else {
-            new_strands[0].sequence = sequence;
-        }
-        let sequence2 = sequence.map(s=>(3 - s));
-        sequence2.reverse();
-        if (new_strands[0].N != sequence.length) {
-            base.Logger.log(`Cannot change sequence: lengths don't match; virtual helix ${vhelix.num}, sequence length ${sequence.length}, virtual helix length ${new_strands[0].N} - are skips/loops accounted for?`, base.Logger.WARNING)
-        } else {
-            new_strands[1].sequence = sequence2;
-        }
-    }
+
     return new_strands;
 }
 
 
-function add_slice(current_system: base.System, vhelix: vhelix, begin: number, end: number, nodes, strands, pos, direction, perp, rot, helix_angles, strand_type, use_seq, seqs) {
+function add_slice(current_system: base.System, vhelix: vhelix, begin: number, end: number, nodes, strands, pos, direction, perp, rot, helix_angles, strand_type) {
     //  add a slice of the virtual helix to the slice system, taking into account skips and loops
     let length_change_begin = 0;
     let length_change_end = 0;
@@ -213,7 +191,7 @@ function add_slice(current_system: base.System, vhelix: vhelix, begin: number, e
         end_slice = vhelix.len - end + length_change_end;
     }
 
-    let new_strands = insert_loop_skip(pos, direction, perp, rot, helix_angles, vhelix, nodes, use_seq, seqs);
+    let new_strands = insert_loop_skip(pos, direction, perp, rot, helix_angles, vhelix, nodes);
     current_system.add_strand(new_strands[strand_type].get_slice(begin_slice, end_slice));
     return current_system;
 }
@@ -775,7 +753,7 @@ function getMostCommon(array) {
     }, []);
 }
 
-function loadCadnano(source_file: string, grid: string, sequences?, side: number = undefined) {
+function loadCadnano(source_file: string, grid: string, scaffold_seq?: string, side?: number) {
     let origami_sq = false;
     let origami_he = false;
     if (grid === "sq") {
@@ -791,28 +769,6 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
     let vh_vb2nuc_final = new cu.vhelix_vbase_to_nucleotide();
 
     let cadsys = parse_cadnano(source_file);
-
-    //  define sequences by vhelix
-    let single_strand_system = false;
-    let block_seq = true;
-    if (!sequences) {
-        base.Logger.log("No sequences given, using random sequence", base.Logger.INFO);
-        sequences = [];
-        for (let i=0; i<cadsys.vhelices.length; i++) {
-            let seq = [];
-            for (let j=0; j < cadsys.vhelices[i].skiploop_bases; j++) {
-                seq.push(utils.randint(0, 4));
-            }
-            sequences.push(seq)
-        }
-    }
-
-    //  check whether we're dealing with a 1 strand system (i.e. NOT double helix) across many vhelices and defined with 1 .sqs line
-    if (sequences.length === 1 && cadsys.vhelices.length > 1) {
-        base.Logger.log("One line detected in the sequence file. Since the cadnano file contains more than 1 virtual helix, the sequence found will be used as we were dealing with a single-strand system", base.Logger.INFO)
-        single_strand_system = true;
-        block_seq = false;
-    }
 
     let vhelix_counter = 0;
     if (side === undefined) {
@@ -860,7 +816,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     }
                     begin_helix = i;
                     if (h.num % 2 === 1) {
-                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 0, block_seq, sequences);
+                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 0);
                         vh_vb2nuc = add_slice_nupack(h, strand_number, begin_helix, end_helix, vh_vb2nuc, 2);
                     }
                 } else {
@@ -873,7 +829,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     }
                     end_helix = i;
                     if (h.num % 2 === 0) {
-                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 0, block_seq, sequences);
+                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 0);
                         vh_vb2nuc = add_slice_nupack(h, strand_number, begin_helix, end_helix, vh_vb2nuc, 2);
                     }
                 } else if (s.V_1 === h.num && Math.abs(s.b_1 - i) === 1) {
@@ -884,7 +840,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     }
                     end_helix = i;
                     if (h.num % 2 === 0 ) {
-                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 0, block_seq, sequences);
+                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 0);
                         vh_vb2nuc = add_slice_nupack(h, strand_number, begin_helix, end_helix, vh_vb2nuc, 2);
                     }
                     let column;
@@ -914,7 +870,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     }
                     begin_helix = i;
                     if (h.num % 2 === 1) {
-                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 0, block_seq, sequences);
+                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 0);
                         vh_vb2nuc = add_slice_nupack(h, strand_number, begin_helix, end_helix, vh_vb2nuc, 2);
                     }
                     for (let j=0; j<partner_list_scaf.length; j++) {
@@ -957,7 +913,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     }
                     begin_helix = i;
                     if (h.num % 2 === 0) {
-                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 1, block_seq, sequences);
+                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 1);
                         vh_vb2nuc = add_slice_nupack(h, strand_number, begin_helix, end_helix, vh_vb2nuc, 3);
                     }
                 } else {
@@ -970,7 +926,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     }
                     end_helix = i;
                     if (h.num % 2 === 1) {
-                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 1, block_seq, sequences);
+                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 1);
                         vh_vb2nuc = add_slice_nupack(h, strand_number, begin_helix, end_helix, vh_vb2nuc, 3);
                     }
                 } else if (s.V_1 === h.num && Math.abs(s.b_1 - i) === 1) {
@@ -981,7 +937,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     }
                     end_helix = i;
                     if (h.num % 2 === 1) {
-                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 1, block_seq, sequences);
+                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 1);
                         vh_vb2nuc = add_slice_nupack(h, strand_number, begin_helix, end_helix, vh_vb2nuc, 3);
                     }
                     let column = i;
@@ -1006,7 +962,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     }
                     begin_helix = i;
                     if (h.num % 2 === 0) {
-                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 1, block_seq, sequences);
+                        slice_sys = add_slice(slice_sys, h, begin_helix, end_helix, nodes, strands, pos, vhelix_direction, vhelix_perp, rot, helix_angles, 1);
                         vh_vb2nuc = add_slice_nupack(h, strand_number, begin_helix, end_helix, vh_vb2nuc, 3);
                     }
                     for (let j=0; j<partner_list_stap.length; j++) {
@@ -1127,10 +1083,6 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                 vh_vb2nuc_final.add_strand(join[k], vh_vb2nuc, true);
             }
             vh_vb2nuc_final.add_strand(join[joining_range[joining_range.length-1] + 1], vh_vb2nuc, false);
-
-            if (single_strand_system) {
-                final_sys._strands[0].sequence = sequences[0];
-            }
         }
     }
 /*
@@ -1289,6 +1241,26 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                     other.color = n.color;
                 }
                 break;
+            }
+        }
+    }
+
+    // Set scaffold sequence, if provided
+    if (scaffold_seq) {
+        let scaffold = rev_sys._strands[scaffold_index];
+        if (scaffold.N > scaffold_seq.length) {
+            base.Logger.log(
+                `Provided scaffold sequence is ${scaffold_seq.length}nt `+
+                `but needs to be at least ${scaffold.N} to cover the scaffold. `+
+                `Using random sequence instead.`
+            );
+        } else {
+            for (let nuc_i=0; nuc_i<scaffold.N; nuc_i++) {
+                let n = scaffold._nucleotides[nuc_i];
+                n._base = base.base_to_number[scaffold_seq[scaffold.N-nuc_i-1]];
+                if (n.pair) {
+                    n.pair._base = 3 - n._base;
+                }
             }
         }
     }

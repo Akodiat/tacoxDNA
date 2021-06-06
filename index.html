@@ -52,6 +52,12 @@
                         <option value="he">Hexagonal</option>
                     </select>
                 </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                    <label class="input-group-text" for="cadnano_scaffoldSeq">Scaffold sequence</label>
+                    </div>
+                    <input class="form-control" type="text" placeholder="RANDOM" id="cadnano_scaffoldSeq">
+                </div>
             </div>
             <div id="pdbInputOpts" class="input-group-sm" hidden>
                 <div class="mb-3 form-check">
@@ -60,7 +66,7 @@
                 </div>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                    <label class="input-group-text" for="cadnano_latticeType">Input strand direction</label>
+                    <label class="input-group-text" for="pdb_input_strand_dir">Input strand direction</label>
                     </div>
                     <select class="form-select" id="pdb_input_strand_dir">
                         <option value="53">5' → 3'</option>
@@ -146,8 +152,13 @@
             if (from === "cadnano") {
                 opts = {
                     grid: document.getElementById("cadnano_latticeType").value,
-                    sequences: false
+                    sequence: document.getElementById("cadnano_scaffoldSeq").value
                 };
+            } else if (from == "pdb") {
+                opts = {
+                    strand_dir: document.getElementById("pdb_input_strand_dir").value,
+                    models_as_strands: document.getElementById("pdb_models_as_strands").value
+                }
             }
             tacoxdna.Logger.log(`Converting ${[...files].map(f => f.name).join(',')} from ${from} to ${to}.`);
             let readFiles = new Map();
