@@ -1238,7 +1238,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
     let scaffold_index = getMostCommon(strands)[0];
 
     //  Make one cluster per domain
-    let cluster_ids = new Map();
+    let cluster_ids = new cu.PairMap();
 
     //  Go through system and add extra information
     //  (basepairs, clusters and colors)
@@ -1257,9 +1257,10 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
                 //  Get the staple strand nucleotide at this position
                 let staple_ids = pos_to_id.get([vh,vb]).filter(n=>(id_to_nucleotide.get(n).strand != scaffold_index));
                 if (staple_ids.length > 0) {
-                    let staple_nuc = id_to_nucleotide.get(staple_ids[0]);
+                    let staple_nuc: base.Nucleotide = id_to_nucleotide.get(staple_ids[0]);
+
                     //  One cluster per combination of helix and staple strand
-                    const cid = [vh, staple_nuc.strand]
+                    const cid: [number, number] = [vh, staple_nuc.strand];
                     if (!cluster_ids.has(cid)) {
                         cluster_ids.set(cid, cluster_ids.size+1)
                     }
@@ -1291,6 +1292,7 @@ function loadCadnano(source_file: string, grid: string, sequences?, side: number
             }
         }
     }
+
     return rev_sys
 }
 
